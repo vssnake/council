@@ -170,7 +170,8 @@ A second published example with the same shape but a much smaller domain — art
 ```
 council/
 ├── README.md                                ← this file
-├── CLAUDE.md                                ← project instructions auto-loaded by Claude Code + per-version changelog
+├── CLAUDE.md                                ← project instructions auto-loaded by Claude Code
+├── CHANGELOG.md                             ← per-version history (v2.1 → v2.8)
 ├── .github/
 │   ├── copilot-instructions.md              ← analogous to CLAUDE.md (for Copilot CLI)
 │   └── agents/                              ← custom agents (Copilot CLI — canonical project-level path, per v2.8)
@@ -252,7 +253,7 @@ Council distinguishes itself from all of them by its combo: **dynamic panel + sh
 - **v2.7 (2026-05-25)**: wrappers refactored to **thin shells**. 5 slash commands + 5 per-action custom agents, each ~5 lines (frontmatter + 1 activation line) — eliminates the ~70% body duplication that existed pre-v2.7 without losing per-action autocomplete (Claude Code) and description-based dispatch (Copilot CLI). Uniform naming: `council-iterate`, `council-import`, `council-deliberate`, `council-refine`, `council-status`. The skill also auto-creates an umbrella `/council` that accepts `<action>` as the first arg.
 - **v2.6 (2026-05-25)**: runtime made multilingual via a **locale pack** + safety hardening. Locale pack at `.claude/skills/council/locales/<lang>.yaml`. Templates `.tpl` neutralized (`{{H:key}}` / `{{I:key}}` / `{{R:key}}` placeholders); all spawn-prompt bodies (`EXPERT_SPAWN_HEADER`, round deltas, moderator prompts) and few-shot examples per output role live in the locale pack. New REUSABLE SUBROUTINE `LANGUAGE_DISCIPLINE(lang, role)` appended at the END of every spawn prompt — output-language directive + canonical vocabulary pinning + one in-language few-shot (research basis: language-confusion benchmark, lost-in-the-middle, hard-to-easy ordering). **Safety**: new REUSABLE SUBROUTINE `VERIFY_OUTPUTS(expected_paths)` with retry-and-respawn logic and an INVIOLABLE rule forbidding director-side fabrication of sub-agent outputs — addresses the spawn-primitive race observed in real runs (Copilot CLI issue #1324). Two locales ship: `es`, `en`. `meta.yaml` gains a `lang:` field (schema 0.5 — schemas multilingualized via `locale_ref:`).
 - **v2.5 (2026-05-25)**: portability to Copilot CLI completed, refactor of `deliberate.md` applied (467 → 272 lines, -42%), refactor of `refine.md` applied, subroutines centralized in SKILL.md, all documentation translated to English.
-- See `CLAUDE.md` for the detailed per-version changelog.
+- See [`CHANGELOG.md`](CHANGELOG.md) for the detailed per-version history (v2.1–v2.8).
 
 ## License
 
