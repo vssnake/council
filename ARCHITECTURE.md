@@ -1,10 +1,10 @@
 # Council — Architecture
 
-> **Contract document**, not history. Describes the system as it is. For changelog see [`CLAUDE.md`](CLAUDE.md); for end-user usage see [`README.md`](README.md); for runtime procedures see [`.claude/skills/council/`](.claude/skills/council/); for refactor narratives see [`docs/research/`](docs/research/).
+> **Contract document**, not history. Describes the system as it is. For per-version history see [`CHANGELOG.md`](CHANGELOG.md); for end-user usage see [`README.md`](README.md); for runtime procedures see [`.claude/skills/council/`](.claude/skills/council/); for refactor narratives see [`docs/research/`](docs/research/).
 >
 > **Audience**: developers / contributors / future-you returning after weeks. **Goal**: coherent mental model of how the pieces fit, where each invariant is enforced, and what can fail.
 >
-> **Update policy**: only when the architecture changes (new component, new invariant, new failure-mode category). Not on feature additions, refactors, or bug fixes — those go in `CLAUDE.md`'s changelog.
+> **Update policy**: only when the architecture changes (new component, new invariant, new failure-mode category). Not on feature additions, refactors, or bug fixes — those go in [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
@@ -19,7 +19,7 @@
 │                   commands in .claude/commands/, thin shells; the     │
 │                   skill also auto-creates /council as umbrella)       │
 │                  Copilot CLI: copilot --agent council-<action> -p     │
-│                   "<args>" (5 thin per-action agents in .claude/      │
+│                   "<args>" (5 thin per-action agents in .github/      │
 │                   agents/; description-based auto-dispatch)           │
 │    │ each wrapper activates SKILL with its action token               │
 │    ▼                                                                   │
@@ -269,4 +269,4 @@ The same SKILL runs in two environments via a normalized spawn primitive.
 | How is the moderator scoped? | Locale pack: `S:moderator_prompt_deliberate` / `S:moderator_prompt_refine_tier1` / `S:moderator_prompt_refine_tier2` |
 | What if a run is interrupted? | `SKILL.md` → INCOMPLETE RUNS (resumption table) |
 | Why this architecture and not another? | `docs/research/deliberate-refactor-2026-05-25/` |
-| When did each feature land? | `CLAUDE.md` (version log) |
+| When did each feature land? | [`CHANGELOG.md`](CHANGELOG.md) |

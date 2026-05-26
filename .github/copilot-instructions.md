@@ -49,7 +49,7 @@ council/
 │   ├── problem.schema.yaml                  # v0.5 — problem.md sections (locale-resolved) + meta.yaml.lang
 │   └── deliverable.schema.yaml              # v0.2 — deliverable shape (locale-resolved), per run
 ├── .copilot/
-│   └── settings.json                        # per-repo config (allowedUrls permissive during spike)
+│   └── settings.json                        # per-repo config (allowedUrls: ["*"] — permissive)
 └── branches/<branch>/problems/<id>/         # local storage per branch+problem
     ├── problem.md
     ├── meta.yaml                            # status: draft | open
@@ -72,6 +72,8 @@ council/
             ├── debate_summary.md
             └── outcome.md
 ```
+
+> **Examples vs personal data**: `branches/cliente-renovables/` and `branches/casa-rural/` are **published reference examples** (tracked in git), not active work. Any other `branches/<x>/` is the user's personal data (excluded by `.gitignore`). When acting on a user request, check that the `<branch>` argument refers to the user's intent, not to an example branch.
 
 The same `<id>` (problem.md) can have N runs. A **deliberation** (`kind: deliberation`) is an independent run. A **refinement** (`kind: refinement`) is a child run. A Tier 1 refinement is minimal (`run_meta.yaml` + `follow_up.md` + `outcome.md`); a Tier 2 has an inherited panel and compressed rounds. When complete, the parent run's `outcome.md` receives a navigation appendix (materialized from `parent-appendix.md.tpl` against the parent's locale — heading is `## Refinamientos posteriores` in `es`, `## Subsequent refinements` in `en`).
 
