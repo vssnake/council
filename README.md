@@ -96,71 +96,73 @@ The skill is **provider-agnostic**: the procedure is the same, the spawn tool is
 Clone the repo and enter:
 
 ```bash
-git clone <repo>
-cd cc-prompts/council
+git clone https://github.com/vssnake/council.git
+cd council
 ```
 
-### Real example: "which solar panels to buy"
+### Real example: distributed SCADA for a renewable energy operator
 
-This example is **already executed** in the repo — you can see the final outcome at `branches/paneles-solares/problems/2026-05-22-0644/council/2026-05-22-comparativa-paneles/outcome.md`. Here we reproduce the commands that generated it. *The runtime outputs of this example are in Spanish, because that was the locale active when it was captured. The same commands with `--lang=en` on iterate would have produced the equivalent run in English.*
+This example is **already executed and published in the repo** — you can read the final outcome at [`branches/cliente-renovables/problems/scada-general/council/2026-05-26-propuesta/outcome.md`](branches/cliente-renovables/problems/scada-general/council/2026-05-26-propuesta/outcome.md). Here we reproduce the commands that generated it. *The runtime outputs of this example are in Spanish, because that was the locale active when capture started. The same commands with `--lang=en` on iterate would have produced the equivalent run in English.*
 
-**Step 1 — Capture the problem** (conversational, ~5-10 messages with the director):
+The scenario: an operator runs multiple solar PV plants and wind farms across Europe; they need a distributed SCADA system that captures field data at each site, persists it locally to tolerate WAN drops, and aggregates everything in a central platform on OpenShift. The decision points were the overall architecture pattern, the time-series database, the communication protocol between plant and central, and the boundary between application and infrastructure security.
+
+**Step 1 — Capture the problem** (~5-10 messages with the director):
 
 ```
-/council-iterate paneles-solares
+/council-iterate cliente-renovables
 ```
 
-The director asks for a short name (slug). After that it enters *structured scribe* mode: it asks you neutral questions to fill `problem.md` following the schema in `schemas/problem.schema.yaml`. It captures what you say **without interpreting** — numbers, brands, constraints remain as you said them. When there are zero `[GAP]`s in required sections, the problem moves to `status: open` and is ready to deliberate.
+The director asks for a problem slug (`scada-general`), then enters *structured scribe* mode: it asks neutral questions to fill `problem.md` following the schema in `schemas/problem.schema.yaml`. It captures what you say **without interpreting** — numbers, brands, constraints stay as you said them. When there are zero `[GAP]`s in required sections, the problem moves to `status: open` and is ready to deliberate.
 
-Resulting file: `branches/paneles-solares/problems/2026-05-22-0644/problem.md` (~60 lines with sections for goal, context, constraints, prior decisions, etc.).
+Resulting file: [`branches/cliente-renovables/problems/scada-general/problem.md`](branches/cliente-renovables/problems/scada-general/problem.md) — context, success criteria, constraints, prior decisions, the concrete decision needed, stakeholders.
 
 **Step 2 — Launch the deliberation**:
 
 ```
-/council-deliberate paneles-solares 2026-05-22-0644 comparativa-paneles
+/council-deliberate cliente-renovables scada-general propuesta
 ```
 
 The director executes 8 STEPs:
 
-1. **Validates inputs and creates the run** `council/2026-05-22-comparativa-paneles/`.
-2. **Iterates hypothesis** (skippable). In this example the user said: *"preference for panels with more watts"*. The director distills to 1 point without enriching.
-3. **Iterates deliverable**. Asks what shape you want: the user said *"a panel comparison table"*.
-4. **Designs the panel** (5 experts in this case): `tecnologo-modulos-fotovoltaicos`, `analista-mercado-fotovoltaico`, `economista-coste-fotovoltaico`, `ingeniero-dimensionado-fv` + 1 friction archetype `arquetipo-esceptico-operacional`. The user confirms or adjusts.
-5. **Round A — Proposals** (5 sub-agents in parallel, each writes `proposals/expert_<name>.md`). If any expert asks for info, the director batches at close.
-6. **Round B — Cross critiques** (5 sub-agents read the others' proposals and critique them).
-7. **Round C — Debate** (lead-mediated, shuttle diplomacy per identified conflict).
+1. **Validates inputs and creates the run** `council/2026-05-26-propuesta/`.
+2. **Iterates hypothesis** (skippable). Auto-generated from `problem.md` and edited by user — 4 points covering modular architecture, TSDB candidates (InfluxDB vs TimescaleDB), communication choice (HTTP REST vs queue), and microservices as the pattern to validate.
+3. **Iterates deliverable**. The user wanted a technical proposal document: narrative + tech comparatives, suitable for a client technical committee. 9 sections agreed — context/drivers, general architecture, acquisition layer, data management, services platform, security, implementation plan, plus an appendix with the TSDB and queueing comparatives.
+4. **Designs the panel**. 5 specialists + 1 friction archetype: `arquitecto-scada-distribuido`, `ingeniero-comunicaciones-industriales`, `ingeniero-datos-series-temporales`, `ingeniero-plataforma-cloud-native`, `especialista-ciberseguridad-industrial`, and `arquetipo-esceptico-operacional` poking the operational story (connectivity, remote maintenance, degraded edge). The user confirms or adjusts at a blocking checkpoint.
+5. **Round A — Proposals** (6 sub-agents in parallel, each writes `proposals/expert_<name>.md`). Questions to the user are batched at round close (the *round barrier*).
+6. **Round B — Cross critiques** (each sub-agent reads the other proposals and critiques them).
+7. **Round C — Debate** (lead-mediated, shuttle diplomacy per identified conflict — for example: the TSDB choice between InfluxDB and TimescaleDB, or where the security boundary lands between client infra and the SCADA application).
 8. **Round D — Final positions** + synthesis by an impartial moderator sub-agent.
-
-Real measured cost: ~15-20 minutes, ~18 premium requests in Copilot CLI.
 
 **Step 3 — Read the outcome**:
 
 ```
-branches/paneles-solares/problems/2026-05-22-0644/council/2026-05-22-comparativa-paneles/
-├── outcome.md              # final recommendation (149 lines: table of 11 models in 3 tiers + verdict on the hypothesis)
+branches/cliente-renovables/problems/scada-general/council/2026-05-26-propuesta/
+├── outcome.md              # final recommendation: architecture + tech choices + roadmap + verdict on hypothesis
 ├── debate_summary.md       # what was debated and how it was resolved
-├── proposals/              # 5 files, one per expert
-├── critiques/              # 5 files
+├── proposals/              # 6 files, one per expert
+├── critiques/              # 6 files
 ├── debate/                 # shuttle files per conflict
-├── final_positions/        # 5 files
+├── final_positions/        # 6 files
 └── escalations/            # user Q&A, batched per round
 ```
 
-**Step 4 — (optional) refine without redoing everything**:
+The outcome lands a clear position: two-level architecture (compact edge in plant + microservices in central), TimescaleDB preferred on both levels pending an edge PoC, RabbitMQ as the store-and-forward sync layer (HTTP REST insufficient as primary channel), explicit verdict on each hypothesis point.
+
+**Step 4 — Refine without redoing everything** (this run actually had a refinement):
 
 ```
-/council-refine paneles-solares 2026-05-22-0644 2026-05-22-comparativa-paneles mono-vs-bifacial
+/council-refine cliente-renovables scada-general 2026-05-26-propuesta arquitectura-concreta
 ```
 
-The director classifies the follow-up into a tier (1 clarification / 2 real refinement / 3 out of scope) and routes. A Tier 2 inherits the parent run's panel, prunes it according to relevance to the follow-up, and runs compressed rounds. The parent's outcome receives a navigation appendix to the child refinement.
+After reading the outcome, the user found it "too abstract on services and concrete architecture" — they needed enough detail to present the client a proposal with service names, data flow between components, edge-to-central topology, and a complete technology stack. The director classified this as **Tier 2** (real refinement), inherited the parent run's panel pruned by relevance, ran compressed rounds, and produced [`council/2026-05-26-arquitectura-concreta/outcome.md`](branches/cliente-renovables/problems/scada-general/council/2026-05-26-arquitectura-concreta/outcome.md) — concrete service names + data flow + interfaces + stack. The parent outcome receives a navigation appendix pointing to the child.
 
-You can see the real refinement at `branches/paneles-solares/problems/2026-05-22-0644/council/2026-05-22-mono-vs-bifacial/outcome.md`.
+A second published example with the same shape but a much smaller domain — artisanal greywater filtering for a rural Mediterranean house, deliberation + Tier 2 refinement — lives at [`branches/casa-rural/problems/filtrado-aguas-grises/`](branches/casa-rural/problems/filtrado-aguas-grises/). Useful if you prefer a complete run readable in 5 minutes.
 
 ### Other available commands
 
 ```
-/council-status                            # read-only view: which problems and runs exist, what's incomplete
-/council-import paneles-solares --from-file=draft.md   # imports an external draft instead of capturing conversationally
+/council-status                                  # read-only view: which problems and runs exist, what's incomplete
+/council-import <branch> --from-file=draft.md   # imports an external draft instead of capturing conversationally
 ```
 
 ## Project structure
@@ -168,8 +170,12 @@ You can see the real refinement at `branches/paneles-solares/problems/2026-05-22
 ```
 council/
 ├── README.md                                ← this file
-├── CLAUDE.md                                ← instructions for Claude Code (not for humans)
-├── .github/copilot-instructions.md          ← analogous for Copilot CLI
+├── CLAUDE.md                                ← project instructions auto-loaded by Claude Code + per-version changelog
+├── .github/
+│   ├── copilot-instructions.md              ← analogous to CLAUDE.md (for Copilot CLI)
+│   └── agents/                              ← custom agents (Copilot CLI — canonical project-level path, per v2.8)
+│       ├── council-{iterate,import,deliberate,refine,status}.agent.md ← 5 thin per-action shells
+│       └── council-expert.agent.md          ← sub-agent invoked by /fleet
 ├── .claude/
 │   ├── skills/council/
 │   │   ├── SKILL.md                         ← skill core (always loaded): role, data model,
@@ -189,21 +195,21 @@ council/
 │   │       ├── refine/
 │   │       │   └── templates/*.tpl          ← specific skeletons (follow_up.md, parent-appendix.md)
 │   │       └── status.md                    ← read-only view
-│   ├── commands/                            ← slash commands (Claude Code) — 5 thin per-action shells
-│   │   └── council-{iterate,import,deliberate,refine,status}.md
-│   └── agents/                              ← custom agents (Copilot CLI + Claude Code subagents)
-│       ├── council-{iterate,import,deliberate,refine,status}.agent.md ← 5 thin per-action shells
-│       └── council-expert.agent.md          ← sub-agent (spawn primitive target)
+│   └── commands/                            ← slash commands (Claude Code) — 5 thin per-action shells
+│       └── council-{iterate,import,deliberate,refine,status}.md
 ├── schemas/
 │   ├── problem.schema.yaml                  ← v0.5 — problem.md sections (titles/purposes resolved via locale pack) + meta.yaml.lang
 │   └── deliverable.schema.yaml              ← v0.2 — deliverable shape (titles/purposes resolved via locale pack), per run
 ├── docs/
 │   ├── copilot-portability-spike-2026-05-24.md
 │   └── research/deliberate-refactor-2026-05-25/    ← research + refactor plan
-└── branches/<branch>/problems/<id>/        ← local storage of problems and runs (not checked in by default)
-    ├── problem.md
-    ├── meta.yaml
-    └── council/<YYYY-MM-DD>-<slug>/         ← one subfolder per deliberation or refinement
+└── branches/                                ← per-user working data (excluded by default via .gitignore)
+    ├── cliente-renovables/problems/scada-general/    ← published example: distributed SCADA (deliberation + Tier 2 refinement)
+    ├── casa-rural/problems/filtrado-aguas-grises/    ← published example: artisanal greywater filtering (deliberation + Tier 2 refinement)
+    └── <branch>/problems/<id>/             ← your own problems land here
+        ├── problem.md
+        ├── meta.yaml
+        └── council/<YYYY-MM-DD>-<slug>/     ← one subfolder per deliberation or refinement
 ```
 
 The most important architecture notes:
@@ -223,6 +229,7 @@ To understand the system in depth:
 | How to instruct the agent (rules and disciplines) | `CLAUDE.md` (Claude Code) or `.github/copilot-instructions.md` (Copilot CLI) |
 | The core and procedures | `.claude/skills/council/SKILL.md` + `.claude/skills/council/actions/*.md` |
 | How it was made portable to Copilot CLI | `docs/copilot-portability-spike-2026-05-24.md` |
+| How `refine` was designed (3-tier classification, panel inheritance, cycle compression) | `docs/refine-feature-design.md` |
 | How it was refactored (with prior research by 4 parallel agents) | `docs/research/deliberate-refactor-2026-05-25/` |
 | Artifact schemas | `schemas/problem.schema.yaml`, `schemas/deliverable.schema.yaml` |
 
@@ -241,11 +248,12 @@ Council distinguishes itself from all of them by its combo: **dynamic panel + sh
 
 ## Current state
 
+- **v2.8 (2026-05-25)**: Copilot CLI agents moved to canonical path `.github/agents/` (previously `.claude/agents/`). The prior location was outside Copilot CLI's documented agent search paths AND simultaneously caused Claude Code to expose the Copilot-only `council-expert` agent as a `subagent_type` option, leading directors to pick it instead of `general-purpose` (the prescribed primitive). The move closes both issues at the harness layer with no behavioral change to SKILL/actions/schemas. Root cause and detail in `docs/copilot-portability-spike-2026-05-24.md` §11.
 - **v2.7 (2026-05-25)**: wrappers refactored to **thin shells**. 5 slash commands + 5 per-action custom agents, each ~5 lines (frontmatter + 1 activation line) — eliminates the ~70% body duplication that existed pre-v2.7 without losing per-action autocomplete (Claude Code) and description-based dispatch (Copilot CLI). Uniform naming: `council-iterate`, `council-import`, `council-deliberate`, `council-refine`, `council-status`. The skill also auto-creates an umbrella `/council` that accepts `<action>` as the first arg.
-- **v2.6 (2026-05-25)**: runtime made multilingual via a **locale pack** + safety hardening. Locale pack at `.claude/skills/council/locales/<lang>.yaml`. Templates `.tpl` neutralized (`{{H:key}}` / `{{I:key}}` / `{{R:key}}` placeholders); all spawn-prompt bodies (`EXPERT_SPAWN_HEADER`, round deltas, moderator prompts) and few-shot examples per output role live in the locale pack. New REUSABLE SUBROUTINE `LANGUAGE_DISCIPLINE(lang, role)` appended at the END of every spawn prompt — output-language directive + canonical vocabulary pinning + one in-language few-shot (research basis: language-confusion benchmark, lost-in-the-middle, hard-to-easy ordering). **Safety**: new REUSABLE SUBROUTINE `VERIFY_OUTPUTS(expected_paths)` with retry-and-respawn logic and an INVIOLABLE rule forbidding director-side fabrication of sub-agent outputs — addresses the spawn-primitive race observed in real runs (Copilot CLI issue #1324). Two locales ship: `es`, `en`. `meta.yaml` gains a `lang:` field (schema 0.4).
+- **v2.6 (2026-05-25)**: runtime made multilingual via a **locale pack** + safety hardening. Locale pack at `.claude/skills/council/locales/<lang>.yaml`. Templates `.tpl` neutralized (`{{H:key}}` / `{{I:key}}` / `{{R:key}}` placeholders); all spawn-prompt bodies (`EXPERT_SPAWN_HEADER`, round deltas, moderator prompts) and few-shot examples per output role live in the locale pack. New REUSABLE SUBROUTINE `LANGUAGE_DISCIPLINE(lang, role)` appended at the END of every spawn prompt — output-language directive + canonical vocabulary pinning + one in-language few-shot (research basis: language-confusion benchmark, lost-in-the-middle, hard-to-easy ordering). **Safety**: new REUSABLE SUBROUTINE `VERIFY_OUTPUTS(expected_paths)` with retry-and-respawn logic and an INVIOLABLE rule forbidding director-side fabrication of sub-agent outputs — addresses the spawn-primitive race observed in real runs (Copilot CLI issue #1324). Two locales ship: `es`, `en`. `meta.yaml` gains a `lang:` field (schema 0.5 — schemas multilingualized via `locale_ref:`).
 - **v2.5 (2026-05-25)**: portability to Copilot CLI completed, refactor of `deliberate.md` applied (467 → 272 lines, -42%), refactor of `refine.md` applied, subroutines centralized in SKILL.md, all documentation translated to English.
 - See `CLAUDE.md` for the detailed per-version changelog.
 
 ## License
 
-To be defined — personal development repo.
+License not yet declared. The code is published publicly on GitHub under default copyright (all rights reserved). If you want to reuse or fork, please open an issue to discuss — a permissive license (MIT or Apache 2.0) is the most likely outcome.
