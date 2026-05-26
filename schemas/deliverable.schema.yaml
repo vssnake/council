@@ -1,0 +1,44 @@
+# deliverable.schema.yaml
+# Version: 0.2
+#
+# Defines the shape of the deliverable of ONE specific deliberation (not of the
+# problem.md). Lives per-deliberation, not per-problem. The same `problem.md` can
+# have N deliberations, each with its own distinct `deliverable.md`.
+#
+# `deliberate` STEP 1.6 captures this file via a mini-iterate (mandatory, not
+# skippable). The final council `outcome.md` is built following the sections the
+# user defined here — there is no universal template.
+#
+# Changelog:
+# - 0.2 (2026-05-25): structural change to support multilingual runtime (SKILL v2.6).
+#     Each section's `title` and `purpose` are replaced by a single `locale_ref:`
+#     that points into the locale pack under `SCHEMA.deliverable.<name>`. The
+#     schema retains only structural data; all user-facing strings move to
+#     `locales/<lang>.yaml`. Director resolves locale_ref against the active
+#     `meta.yaml.lang` at materialization time.
+# - 0.1: provisional baseline.
+#
+# How SKILL.md uses this file:
+# - Read at the start of `deliberate` STEP 1.6 (and `refine` STEP 5 for Tier 2).
+# - For each entry in `sections`:
+#     1. Resolve `locale_ref` against `locales/<lang>.yaml` → returns `{title, purpose}`.
+#     2. Generate a top-level "## <title>" in the deliverable.md skeleton,
+#        initialised with `[GAP: <purpose>]`.
+# - Sections with `optional: true` are NOT created in the skeleton.
+#   They materialize only if the user provides relevant content.
+
+version: "0.2"
+
+sections:
+  - name: tipo
+    locale_ref: SCHEMA.deliverable.tipo
+
+  - name: estructura
+    locale_ref: SCHEMA.deliverable.estructura
+
+  - name: profundidad
+    locale_ref: SCHEMA.deliverable.profundidad
+
+  - name: audiencia
+    locale_ref: SCHEMA.deliverable.audiencia
+    optional: true

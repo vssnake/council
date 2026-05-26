@@ -1,0 +1,1 @@
+El user menciona que un depósito de 1000 litros estándar le valdría. No tiene preferencia sobre el dimensionado del humedal ni sobre la forma de entrada al depósito — los deja a criterio técnico del panel.

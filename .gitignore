@@ -1,0 +1,35 @@
+# Local Claude Code config (user-specific allow-list / sandbox preferences)
+.claude/settings.local.json
+
+# ─────────────────────────────────────────────────────────────────────
+# branches/ — by default ignore EVERYTHING inside.
+# This is per-user working data (problems, deliberations, escalations,
+# personal/professional context). Public examples are re-included below.
+# ─────────────────────────────────────────────────────────────────────
+
+/branches/**
+
+# Re-include the dir itself so git can traverse into it
+!/branches/
+
+# Example 1: cliente-renovables/scada-general (full branch — distributed SCADA)
+!/branches/cliente-renovables/
+!/branches/cliente-renovables/**
+
+# Example 2: casa-rural/filtrado-aguas-grises (single problem, single branch)
+!/branches/casa-rural/
+!/branches/casa-rural/**
+
+# ─────────────────────────────────────────────────────────────────────
+# OS / editor / transient
+# ─────────────────────────────────────────────────────────────────────
+
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.log
+*.tmp
+node_modules/

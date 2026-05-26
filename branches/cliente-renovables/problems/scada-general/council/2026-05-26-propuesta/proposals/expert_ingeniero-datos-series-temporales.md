@@ -1,0 +1,22 @@
+## Posición
+Recomiendo validar la hipótesis con tres ajustes: **TimescaleDB como opción principal para la central**; **HTTP solo como transporte, no como garantía de entrega**; y **modularidad fuerte con pocos servicios desplegables en planta, no microservicios finos**.
+
+## Razones
+- El caso no es solo ingestión: la central debe agregar datos de varios centros fotovoltaicos y parques eólicos, con 3 máquinas por parque, además de servir dashboards, API REST y consumo por terceros; el horizonte del proyecto es de 2 años, ampliable [fuente: `branches/cliente-renovables/problems/scada-general/problem.md`]. Ese patrón mezcla series temporales, metadatos de activos, reporter y consumo externo. En ese contexto, **TimescaleDB encaja mejor en central** porque opera sobre tablas PostgreSQL y particiona automáticamente por tiempo con hypertables [fuente: https://docs.timescale.com/use-timescale/latest/hypertables/].
+- Para separar dato crudo y vistas operativas/históricas sin rehacer agregaciones pesadas en cada consulta, **TimescaleDB** ofrece continuous aggregates que se refrescan en background sobre hypertables [fuente: https://docs.timescale.com/use-timescale/latest/continuous-aggregates/about-continuous-aggregates/]. Eso alinea bien con una arquitectura con retención multinivel y consultas cross-site.
+- **InfluxDB** sigue siendo una opción seria cuando el patrón dominante es ingestión temporal muy directa con retención por bucket y downsampling hacia buckets agregados [fuente: https://docs.influxdata.com/influxdb/v2/reference/internals/data-retention/ ; https://docs.influxdata.com/influxdb/v2/process-data/common-tasks/downsample-data/]. Por eso no la descartaría en abstracto; pero, para este caso, la veo más fuerte como motor de telemetría acotada que como base principal de una central que además debe convivir con API, reporter y metadatos ricos.
+- La hipótesis de **REST vs. colas** necesita ser afinada: en el problema ya consta que el ancho de banda es desconocido y que la conectividad puede interrumpirse [fuente: `branches/cliente-renovables/problems/scada-general/problem.md`]. Con esa restricción, **REST síncrono “a pelo” no es suficiente** para planta ↔ central. Mi recomendación es **store-and-forward duradero** en planta, con orden, idempotencia y deduplicación; si queréis, el envío a central puede seguir siendo HTTP, pero respaldado por una outbox persistente.
+- También **desafío la hipótesis de microservicios como opción principal** en planta. Con despliegue repetido en muchos emplazamientos y solo 3 máquinas por parque [fuente: `branches/cliente-renovables/problems/scada-general/problem.md`], el coste operativo de microservicios finos suele superar su beneficio. Para datos temporales, el desacoplo importante es por **contrato de datos y buffer de ingestión**, no por multiplicar contenedores. En planta priorizaría 2–3 servicios claros: adquisición, procesado/almacenamiento, y sincronización/alarmas. En central sí veo razonable separar más.
+- La decisión entre InfluxDB y TimescaleDB **no debe cerrarse sin modelar cardinalidad y patrón de consulta**. Si se mete identidad de dispositivo/señal como tags de alta cardinalidad sin disciplina, fallará cualquier TSDB. Mi sesgo aquí es claro: **prefiero un modelo con series temporales limpias y metadatos fuera de la TSDB**, y eso vuelve a favorecer TimescaleDB en la central por su flexibilidad relacional.
+
+## Supuestos
+- est. [verificar antes de decidir]: que la central será el repositorio principal para consulta agregada multi-parque, no solo un replicado operativo.
+- est. [verificar antes de decidir]: que el modelo de datos permitirá separar telemetría, catálogo de activos y configuración, evitando cardinalidad explosiva.
+- est. [verificar antes de decidir]: que las alarmas de planta pueden evaluarse localmente y reenviarse a central como eventos ya enriquecidos.
+- est. [verificar antes de decidir]: que el cliente valora más la mantenibilidad y explotación SQL en central que exprimir al máximo un motor especializado solo para ingestión.
+
+## Preguntas al user
+- ¿La central debe soportar consultas ad hoc y reporter sobre histórico, o solo APIs predefinidas?
+- ¿Qué política de retención esperáis para dato crudo en planta y para agregados en central?
+- ¿El identificador de cada señal/dispositivo ya viene normalizado entre parques, o habrá reconciliación de nomenclaturas?
+- ¿Queréis una sola tecnología de TSDB en planta y central por simplicidad operativa, aunque el óptimo técnico pudiera diferir por capa?

@@ -1,0 +1,37 @@
+## Crítica a `proposals/expert_arquitecto-scada-distribuido.md`
+- **Punto fuerte**: acierta al separar claramente planta y central, y al defender que el corte entre ambas debe ser asíncrono con `store-and-forward`.
+- **Hueco**: se queda demasiado en patrón arquitectónico y no aterriza la capa OT real. No basta con decir "concentrador"; hay que fijar qué contrato norte sale de ese concentrador, cómo se preservan `timestamp` de origen y `quality flags`, y cómo se evita que cada downstream reabra el problema de protocolos.
+- **Supuesto cuestionable**: trata OPC UA casi como normalización por defecto cuando el propio user ha dicho que no sabe qué porcentaje de equipos lo soporta nativamente. Con parque heterogéneo, dar por hecho ese pivot puede esconder bastante deuda de drivers y gateways.
+- **Hueco**: abre la puerta a tecnologías distintas de TSDB por nivel. Eso puede sonar elegante, pero ya choca con una preferencia explícita del user: misma tecnología en planta y central. Introducir dos stacks sin necesidad demostrada es complejidad gratuita.
+- **Supuesto cuestionable**: afirma que no conviene subir "todo" a central, pero el user ya ha sido claro: quiere toda la telemetría en central. La crítica correcta no es negar ese requisito, sino advertir su impacto en ancho de banda, backfill y orden de entrega.
+
+## Crítica a `proposals/expert_ingeniero-datos-series-temporales.md`
+- **Punto fuerte**: aterriza bien la diferencia entre ingestión temporal pura y consumo analítico/reporting, y obliga a pensar en retención y agregados de largo plazo.
+- **Hueco**: está demasiado sesgada por la central y por la ergonomía SQL. Desde comunicaciones OT, el problema decisivo no es qué motor queda más cómodo para reporter, sino cuál tolera mejor replay, datos tardíos, ráfagas tras reconexión y escritura continua desde parques con autonomía de días.
+- **Supuesto cuestionable**: empuja TimescaleDB como opción principal sin demostrar que ese mismo stack sea igualmente razonable en planta, donde la carga operativa es distinta. El user además ha pedido una sola tecnología; defenderla desde la central no basta.
+- **Hueco**: apenas trata la semántica de adquisición. Si en central va a entrar toda la telemetría, el diseño de series, cardinalidad y claves debe nacer condicionado por `asset id + signal id + source timestamp + quality`, no solo por conveniencia de consulta.
+- **Supuesto cuestionable**: asume que separar metadatos fuera de la TSDB resolverá el problema de cardinalidad. En OT, si la normalización llega tarde o el identificador de señal no queda cerrado en origen, el problema ya entró por la puerta aunque luego lo guardes en tablas auxiliares.
+
+## Crítica a `proposals/expert_ingeniero-plataforma-cloud-native.md`
+- **Punto fuerte**: corrige bien la tentación de microservicios finos en planta y ve con claridad que la central sí admite una descomposición más rica.
+- **Hueco**: sigue leyendo demasiado el problema como plataforma y no como comunicaciones industriales. Decir "2–3 servicios" en planta no responde aún si adquisición, buffer y sincronización deben vivir en procesos separados o en el mismo runtime para no introducir hops internos innecesarios en el camino crítico OT.
+- **Supuesto cuestionable**: da bastante peso a GitOps/promoción coordinada cuando el cuello de botella aquí no es el método de despliegue, sino la robustez del canal de datos y la disciplina de contratos entre campo y central. Puede acabar optimizando el cómo desplegar antes de cerrar qué viaja y con qué garantías.
+- **Hueco**: mezcla otra vez decisión de transporte con decisión de arquitectura interna. `Store-and-forward` no obliga a introducir un broker complejo entre todos los módulos locales; podría bastar una outbox persistente muy cerca del concentrador. La propuesta no diferencia bien esos niveles.
+- **Supuesto cuestionable**: su sesgo hacia TimescaleDB vuelve a nacer de la central consumidora/analítica, pero no demuestra que sea la opción más robusta para backlog local, reenvío y operación edge durante días de aislamiento.
+
+## Crítica a `proposals/expert_especialista-ciberseguridad-industrial.md`
+- **Punto fuerte**: acierta al exigir patrón `push` desde planta y a desconfiar de exponer interfaces OT de forma permanente desde central.
+- **Hueco**: la propuesta se desplaza rápido a segmentación, DMZ y zonas, pero el user ya ha indicado que esa parte recaerá en el equipo del cliente. Como crítica arquitectónica está bien; como recomendación principal corre el riesgo de consumir demasiado espacio en algo fuera del núcleo de decisión actual.
+- **Hueco**: trata el gateway como activo crítico, pero no baja al detalle de comunicaciones: límites de conexiones simultáneas, estrategias de polling, convivencia con equipos mono-conexión, ni política de propagación de `quality` y `source timestamp`. Ahí es donde realmente se gana o se pierde fidelidad OT.
+- **Supuesto cuestionable**: sugiere una separación bastante dura de zonas de publicación a terceros desde ya, cuando el user ha dicho que IEC 61850 para terceros puede venir después. Está anticipando complejidad de fase futura en lugar de afinar primero la columna vertebral de adquisición y reenvío.
+- **Supuesto cuestionable**: asume que añadir más capas de seguridad de red resolverá los problemas de disponibilidad y consistencia. En OT, una arquitectura "segura" pero que introduce demasiados puntos de fallo en el flujo de telemetría puede ser operacionalmente peor.
+
+## Crítica a `proposals/expert_arquetipo-esceptico-operacional.md`
+- **Punto fuerte**: fuerza a mirar escenarios degradados reales y no dejarse seducir por una arquitectura bonita sobre el papel.
+- **Hueco**: critica casi todo, pero propone muy poco. Decir que la hipótesis es demasiado optimista sirve como vacuna, no como diseño. Falta traducir esa cautela a decisiones concretas de comunicaciones: qué buffer local, qué garantía de entrega, qué orden lógico de replay y qué contrato mínimo de datos.
+- **Supuesto cuestionable**: sigue empujando dudas que ya están parcialmente resueltas por el user. Ya sabemos que los parques deben aguantar días sin WAN, que la transmisión es desde planta a central y que perder datos es peor que entregarlos tarde. No incorporar esas respuestas hace que la crítica se quede desfasada.
+- **Hueco**: concentra el tiro en Kubernetes, volúmenes y certificados, pero desde mi especialidad el fallo más probable y más costoso está antes: drivers heterogéneos, límites de conexión de dispositivos, timestamps incoherentes y calidad de dato degradada al reenviar.
+- **Supuesto cuestionable**: presenta el módulo único de extracción casi solo como riesgo de concentración de fallo. Eso es cierto, pero omite la otra cara: en este dominio también es la única forma seria de evitar `poliglot hell` y peleas por la única conexión disponible en muchos equipos.
+
+## Posición
+Mi posición original se mantiene, pero la endurecería en dos puntos: (1) el contrato planta → central debe definirse como **canal asíncrono saliente con persistencia, replay controlado y semántica explícita de `timestamp` de origen + `quality`**, no como un simple debate REST vs broker; y (2) el **concentrador OT en planta** debe considerarse una pieza de producto principal, no un adaptador accesorio. Si ese concentrador no normaliza bien protocolos, identidad de señal y calidad del dato, todo lo demás — TSDB, microservicios, reporting y API — se construye sobre arena.

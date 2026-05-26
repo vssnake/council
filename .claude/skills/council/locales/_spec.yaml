@@ -1,0 +1,238 @@
+# Council locale pack contract — v0.1
+#
+# Each locale file `locales/<lang>.yaml` MUST provide every key listed under
+# `required_keys`. Keys are grouped by purpose:
+#
+#   H:* — Headings / inline labels (human-language strings in heading-or-label
+#         position inside materialized artifacts)
+#   I:* — Instructional placeholders (the prompt-to-the-LLM text that lives
+#         inside `<...>` in `.tpl` files — these guide what the LLM writes,
+#         and are also localized so the LLM operates entirely in the user's
+#         language)
+#   R:* — Hard rules (critical-content fragments that MUST be preserved verbatim
+#         in the materialized artifact; localized but never paraphrased)
+#   S:* — Spawn primitive body fragments (resolved by REUSABLE SUBROUTINES in
+#         SKILL.md — EXPERT_SPAWN_HEADER and LANGUAGE_DISCIPLINE)
+#   F:* — Few-shot examples (short fragments in target language used by
+#         LANGUAGE_DISCIPLINE to anchor sub-agent output structure + language)
+#   SCHEMA — Schema localization (titles + purposes for `problem.md` /
+#         `deliverable.md` sections). Resolved by the director when materializing
+#         schema-driven skeletons. Nested 3 levels deep: SCHEMA.<schema>.<section>
+#         where <schema> ∈ {problem, deliverable} and <section> matches
+#         `schemas/<schema>.schema.yaml`'s `sections[].name`. Each section entry
+#         has two fields: `title` (becomes "## <title>" in the skeleton) and
+#         `purpose` (becomes "[GAP: <purpose>]" in the skeleton + seeds the
+#         lead's first questions).
+#
+# Resolution algorithm (director responsibility):
+#   1. Load `meta.yaml` of the active problem, read `lang:` field.
+#   2. Load `locales/<lang>.yaml` (fail fast if file missing or key missing).
+#   3. When materializing a `.tpl`: substitute every `{{H:key}}`, `{{I:key}}`,
+#      `{{R:key}}` placeholder with the locale value. Leave `<placeholders>`
+#      that take runtime values (`<branch>`, `<run-id>`, `<name>`, etc.) alone —
+#      those are resolved by the caller after locale substitution.
+#   4. When composing a spawn prompt: invoke `EXPERT_SPAWN_HEADER(name,
+#      role_category, lang)` and `LANGUAGE_DISCIPLINE(lang)` from SKILL.md,
+#      which resolve `S:*` and `F:*` keys.
+#
+# A missing key is a configuration error — fail fast, do not silently fall
+# back to a default language.
+
+schema_version: "0.1"
+
+required_keys:
+
+  # ─────────────────────────────────────────────────────────────────────
+  # H:* — Headings / inline labels
+  # ─────────────────────────────────────────────────────────────────────
+  H:
+    # panel.md.tpl
+    panel_title:                    "Top-level title of panel.md (e.g. 'Panel')"
+    purpose:                        "Section: panel's purpose (1-line categorical)"
+    dominates:                      "Section: question types the panel handles well"
+    out_of_scope:                   "Section: question types the panel rejects"
+    specialists:                    "Section: specialist roster"
+    friction_archetypes:            "Section: friction archetype roster (kept as 'Friction archetypes' in any locale — established term)"
+    panel_notes:                    "Section: panel notes (parent of the three subsections below)"
+    owner_per_variable:             "Subsection: which expert owns which deliverable variable"
+    omitted_dimensions:             "Subsection: which friction dimensions were omitted and why"
+    user_composition_decisions:     "Subsection: user's adjustments to panel composition during checkpoint"
+
+    # persona-specialist.md.tpl + persona-friction.md.tpl
+    identity:                       "Section: persona's identity (categorical bio)"
+    heuristics:                     "Section: persona's decision heuristics (specialist) / lenses of doubt (friction)"
+    red_flags:                      "Section: persona's red flags"
+    anti_patterns:                  "Section: persona's anti-patterns"
+    limitations:                    "Section: persona's limitations"
+    voice:                          "Section: persona's voice samples"
+
+    # lead_notes.md.tpl
+    lead_notes_title:               "Top-level title of lead_notes.md (e.g. 'Lead notes')"
+    user_directives_during_debate:  "Section: user directives extracted from user_directives.md + ad-hoc chat"
+    lead_interventions:             "Section: lead's interventions during shuttle (factual bullets)"
+    open_conflicts:                 "Section: conflicts left open from debate_mediated.md"
+    context_outside_files:          "Section: context the user shared in chat that wasn't persisted elsewhere"
+
+    # debate_mediated.md.tpl
+    debate_mediated_title:          "Top-level title of debate_mediated.md (e.g. 'Mediated debate')"
+    user_directives_transmitted:    "Section: literal contents of user_directives.md or 'None'"
+    resolved_conflicts:             "Section: resolved conflicts (per-conflict format)"
+    unresolved_conflicts:           "Section: unresolved conflicts"
+
+    # debate_summary.md.tpl
+    debate_summary_title:           "Top-level title of debate_summary.md (e.g. 'Debate summary')"
+    context:                        "Section: problem context + hypothesis state (2-3 lines)"
+    unanimous_agreement:            "Section: points all experts agreed on"
+    debated_conflicts:              "Section: conflicts debated and how they were resolved"
+    open_disagreements:             "Section: open disagreements requiring user decision"
+
+    # follow_up.md.tpl
+    follow_up_title:                "Top-level title of follow_up.md (e.g. 'Follow-up')"
+    trigger:                        "Section: what triggered the refinement"
+    new_information:                "Section: new information the user provided"
+    user_leaning:                   "Section: user's prior leaning, if any"
+
+    # parent-appendix.md.tpl (appended to parent outcome.md by lead)
+    subsequent_refinements:         "Appended section in parent outcome.md pointing to child runs"
+
+    # Inline labels (in follow_up.md and parent-appendix.md)
+    refines_label:                  "Inline label for the parent-run reference (e.g. 'Refines:')"
+    anchor_label:                   "Inline label for the anchor reference (e.g. 'anchor:')"
+    anchor_default_general:         "Value used when refinement targets the whole outcome.md (e.g. 'general')"
+    see_label:                      "Inline label for the navigation pointer (e.g. 'See:')"
+
+    # Used by EXPERT_SPAWN_HEADER + CLOSE_ROUND (no .tpl — generated by spawn)
+    questions_for_user:             "Heading experts use at the END of their files to escalate to user (e.g. 'Questions for the user')"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # I:* — Instructional placeholders (the LLM prompts inside `<...>` in `.tpl`)
+  # ─────────────────────────────────────────────────────────────────────
+  I:
+    # panel.md.tpl
+    panel_purpose:                  "1-line categorical purpose of the panel"
+    panel_dominates:                "2-4 categorical question types the panel handles well"
+    panel_out_of_scope:             "2-4 categorical question types the panel rejects (operable, not descriptive)"
+    specialist_entry_angle:         "1-line angle of each specialist (appears after bold name)"
+    friction_entry_angle:           "1-line angle of each friction archetype"
+    owner_per_variable_body:        "For each key variable/section of deliverable.md, which expert covers it; surface uncovered variables"
+    omitted_dimensions_body:        "Which of the 4 friction dimensions are omitted from the panel and the categorical reason — not from problem.md"
+    user_composition_decisions_body: "If the user added/removed/changed experts during checkpoint, record here. If none: state 'None — panel accepted on first proposal' (literal in target language)"
+
+    # persona-specialist.md.tpl
+    specialist_identity:            "200-400 word categorical bio of the field, not of the user's project"
+    specialist_heuristics:          "3-5 categorical domain decision rules — the specialist applies them"
+    specialist_red_flags:           "2-3 categorical alarm signals"
+    specialist_anti_patterns:       "2-3 domain anti-patterns"
+    specialist_limitations:         "2-3 neighbouring domains NOT covered"
+    specialist_voice:               "3-5 plausible sentences you'd say — affirmations, recommendations, criteria"
+
+    # persona-friction.md.tpl (framing differs from specialist — friction is doubt, not action)
+    friction_identity:              "200-400 word categorical bio of the field, not of the user's project. Friction's value is the uncomfortable voice that doubts when specialists converge"
+    friction_heuristics:            "3-5 lenses of doubt, NOT action rules. Example: 'the catalogue figure is a ceiling', 'a single decision variable hides costs in the others'"
+    friction_red_flags:             "2-3 categorical alarm signals that trigger your objection"
+    friction_anti_patterns:         "2-3 domain anti-patterns your role detects"
+    friction_limitations_extra:     "2-3 additional things you do NOT know / do NOT cover (this complements the hard rule R:friction_function)"
+    friction_voice:                 "3-5 uncomfortable questions (NOT statements). Self-check: if writing 'buy X', 'choose Y', 'use Z' → reverting to specialist; restart"
+
+    # lead_notes.md.tpl
+    lead_notes_user_directives:     "Literal extract from user_directives.md + any user intervention in main chat not persisted in other files"
+    lead_notes_interventions:       "Factual bullets: which expert you asked what in the shuttle, what was conceded and where — derivable from debate_mediated.md but here in compact form"
+    lead_notes_open_conflicts:      "Those that debate_mediated.md marks as 'unresolved' — moderator must reflect them as two symmetric positions in outcome.md, without forcing resolution"
+    lead_notes_context_outside:     "If the user passed info via chat that wasn't persisted in other files, put it here"
+
+    # debate_mediated.md.tpl
+    debate_user_directives:         "Literal content of user_directives.md, or 'None' (literal in target language)"
+    debate_resolved_conflicts:      "For each conflict: '<conflict-id>: <description>. Initial positions: A=..., B=... Resolution: <who conceded and why, or compromise reached>'"
+    debate_unresolved_conflicts:    "For each conflict: '<conflict-id>: <description>. Position A: ... Position B: ... Reason for disagreement: ...'"
+
+    # debate_summary.md.tpl
+    summary_context:                "2-3 lines of the problem + state of the hypothesis (user-provided / auto-generated / open case)"
+    summary_unanimous:              "List of things all N experts aligned on"
+    summary_debated_conflicts:      "For each conflict: initial positions, arguments, resolution (or open disagreement)"
+    summary_open_disagreements:     "Conflicts that require user decision"
+
+    # follow_up.md.tpl
+    follow_up_trigger:              "The question / what's unclear / what's being challenged — in the user's words"
+    follow_up_new_information:      "New data, if any. Mark each: '[new]' if only adds, '[updates problem.md — was: <old value>]' if contradicts/changes problem.md. Or 'None'"
+    follow_up_user_leaning:         "What the user already thinks as an answer, if provided; or 'None'"
+
+    # parent-appendix.md.tpl
+    parent_appendix_entry:          "Inline: 1-line restatement of the follow-up that drove the child refinement (template provides the surrounding line structure)"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # R:* — Hard rules (critical content, translated literally not paraphrased)
+  # ─────────────────────────────────────────────────────────────────────
+  R:
+    friction_function:              "Hard rule (bold): friction must question, not propose. Translation must preserve the imperative tone. Used inline in persona-friction.md.tpl `## Limitations` section"
+    friction_voice_warning:         "Warning to friction persona: if you find yourself writing prescriptive statements ('buy X', 'choose Y', 'use Z'), you're drifting to specialist — restart. Used inline in persona-friction.md.tpl `## Voice` section"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # S:* — Spawn primitive body fragments (resolved by REUSABLE SUBROUTINES)
+  # ─────────────────────────────────────────────────────────────────────
+  S:
+    expert_spawn_header:            "Full body of EXPERT_SPAWN_HEADER. Placeholders <name>, <role_category>, <branch>, <id>, <run-id> resolved by caller. Covers identity, isolation, base files to read, anchor positioning, deliverable alignment, escalation mechanism, web evidence tools, evidence discipline"
+    language_discipline:            "Full body of LANGUAGE_DISCIPLINE(lang). Output-language directive + canonical vocabulary pinning. F:example_<role> is appended AFTER this body by the subroutine"
+
+    # Round deltas — appended to EXPERT_SPAWN_HEADER per round (and before LANGUAGE_DISCIPLINE)
+    read_also_label:                "Inline label introducing a 'read also' paths list in a spawn delta (e.g. 'Read also' / 'Lee también')"
+    task_round_a:                   "Task instruction for Round A (deliberate) — initial proposal. Placeholders: <output-path>"
+    task_round_b:                   "Task instruction for Round B — cross critiques. Placeholders: <output-path>"
+    task_round_c_shuttle:           "Task instruction for Round C — lead-mediated shuttle response per conflict. Placeholders: <conflict-id>, <conflict-description>, <other-expert>, <position-B>, <reasons-B>, <position-A>, <output-path>"
+    task_round_d:                   "Task instruction for Round D — final position consolidation. Placeholders: <output-path>"
+
+    # Refine-specific deltas
+    refine_parent_context_label:    "Inline label introducing the inherited-parent-context paths list (e.g. 'Read also (inherited parent context)')"
+    task_round_a_refine_starting_point: "Extra instruction appended to Round A′ task: starting-point rule (do not re-investigate verified parent material)"
+
+    # Moderator full prompts (large, full-body bodies)
+    moderator_prompt_deliberate:    "Full body of the impartial moderator prompt for `deliberate`. Produces debate_summary.md + outcome.md. Includes SCOPE rule, mandatory verdict-on-hypothesis section (conditional on hypothesis marker), IMPARTIALITY rules, POST-SYNTHESIS AUDIT. Placeholders: <branch>, <id>, <run-id>"
+    moderator_prompt_refine_tier1:  "Full body of the moderator prompt for `refine` Tier 1 (clarification only). Re-exposes parent material without new analysis; if new analysis is needed, writes NEEDS-TIER-2.md instead. Placeholders: <branch>, <id>, <parent-run-id>, <child-run-id>"
+    moderator_prompt_refine_tier2:  "Full body of the moderator prompt for `refine` Tier 2 (refinement synthesis). Produces scoped autonomous outcome.md + conditional debate_summary.md. Placeholders: <branch>, <id>, <parent-run-id>, <child-run-id>"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # F:* — Few-shot examples per output role (used by LANGUAGE_DISCIPLINE)
+  # ─────────────────────────────────────────────────────────────────────
+  F:
+    example_proposal:               "5-8 line example fragment showing structure (`## <Position-heading>`, `## <Reasons-heading>`, `## <Assumptions-heading>`, `## <Questions-heading>`) and language of a Round A proposal"
+    example_critique:               "5-8 line example fragment showing structure and language of a Round B critique (per-proposal critique format)"
+    example_debate:                 "5-8 line example fragment showing structure and language of a Round C debate response (lead-mediated, per-conflict)"
+    example_final_position:         "5-8 line example fragment showing structure and language of a Round D final position (post-debate consolidation)"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # SCHEMA — Schema-driven section localization
+  # ─────────────────────────────────────────────────────────────────────
+  # Each entry has two fields: `title` (heading text) and `purpose` (gap text).
+  # Section names mirror `schemas/<schema>.schema.yaml`'s `sections[].name`.
+  SCHEMA:
+    problem:
+      contexto:                     "title + purpose for problem.md `contexto` section (what / where / mode of use / current starting point)"
+      objetivo:                     "title + purpose for problem.md `objetivo` section (what to achieve, success criterion)"
+      restricciones:                "title + purpose for problem.md `restricciones` section (budget / time / space / regulatory / policy)"
+      decisiones_previas:           "title + purpose for problem.md `decisiones_previas` section (decisions taken + hypotheses + explicit rejections with reason)"
+      decision:                     "title + purpose for problem.md `decision` section (what is requested from the council)"
+      stakeholders:                 "title + purpose for problem.md `stakeholders` section (decides / implements / operates) — section is optional"
+    deliverable:
+      tipo:                         "title + purpose for deliverable.md `tipo` section (output type — list / comparative / phased plan / binary decision / numeric sizing / narrative / diagram / combination)"
+      estructura:                   "title + purpose for deliverable.md `estructura` section (expected sections in outcome.md, in order)"
+      profundidad:                  "title + purpose for deliverable.md `profundidad` section (high-level / mid / specific)"
+      audiencia:                    "title + purpose for deliverable.md `audiencia` section (who reads the output) — section is optional"
+
+# Notes for locale authors
+# ─────────────────────────
+#
+# Section headings (H:*) should use ASCII or locale-native characters consistently;
+# avoid emojis unless they're already part of the source artifact convention.
+#
+# Established loanwords (e.g. "rollback", "trade-off", "stack") MAY remain in
+# English even in non-English locales when they are the de-facto term in the
+# target professional domain — don't force translation that makes the text
+# alien to the reader.
+#
+# Instructional placeholders (I:*) are read by the LLM, not the end user. They
+# should be in the target language so the LLM operates monolingually, but they
+# can be more terse than what an end user would expect — they're prompts, not
+# documentation.
+#
+# Few-shot examples (F:*) MUST be entirely in the target language. Mixing source
+# language tokens defeats the purpose (language confusion research: even one
+# bilingual example in the prompt elevates leakage rate measurably).

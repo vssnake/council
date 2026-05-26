@@ -1,0 +1,71 @@
+# problem.md schema
+# Version: 0.5
+#
+# Changelog:
+# - 0.5 (2026-05-25): structural change to support multilingual runtime introduced in
+#     SKILL v2.6. Each section's `title` and `purpose` are replaced by a single
+#     `locale_ref:` that points into the locale pack under `SCHEMA.problem.<name>`.
+#     The schema retains only structural data (section identifiers, optional flags);
+#     all user-facing strings (titles + purposes used in problem.md skeleton and
+#     [GAP] markers) move to `locales/<lang>.yaml`. Director resolves locale_ref
+#     against `meta.yaml.lang` at materialization time.
+#     Migration: existing problems with schema_version 0.3/0.4 are unaffected —
+#     their problem.md content is what it is; new problems created post-v2.6 get
+#     schema_version: "0.5". Old schema versions remain readable conceptually
+#     (the sections.name identifiers are stable across versions).
+# - 0.4 (2026-05-25): no `sections` change. Companion to SKILL v2.6 (multilingual locale pack):
+#     - `meta.yaml` gains a `lang:` field (active locale: `es`, `en`, ...). Set on
+#       creation by `iterate`/`import` (inferred from user input or `--lang=` flag),
+#       sticky for the problem's lifetime. Refinements inherit the parent run's lang.
+#     - `meta.yaml.schema_version` bumps to "0.4" on problems created or touched post-v2.6.
+#       Legacy problems without `lang:` default to `es` (preserves prior behavior).
+# - 0.3 (2026-05-22): no sections change. Companion to SKILL v2.2 (refine action):
+#     - `meta.yaml.status` simplified to `draft | open` — `deliberated` removed.
+#       A problem's deliberation/refinement state is no longer a state of meta.yaml:
+#       it is derived from runs in `council/` and their `run_meta.yaml`.
+#     - `meta.yaml.schema_version` bumps to "0.3" on new problems. Existing meta.yaml
+#       with `status: deliberated` migrate to `status: open`.
+# - 0.2 (2026-05-05): observation-driven refinement after F1.1 case "finca-rustica":
+#     - Renamed "explorado" → "decisiones_previas" (in practice this section captures
+#       decisions already taken + hypotheses to evaluate, not "explored and discarded").
+#     - Marked "stakeholders" as optional (single-stakeholder personal problems
+#       don't benefit from a dedicated section; the lead omits it from the skeleton
+#       unless content materializes).
+# - 0.1: provisional baseline, designed before observing real problems.
+#
+# Validation against 3 closed problem.md (2026-05-06): off-grid energy
+# (01-finca), sports nutrition / hiatal hernia (02-dieta), industrial
+# SCADA software (03-scada). All 5 mandatory sections filled in all 3
+# domains, none felt forced. Stakeholders not materialized in any of 3.
+#
+# How SKILL.md uses this file:
+# - Read once at the start of any iterate/import action.
+# - For each entry in `sections`:
+#     1. Resolve `locale_ref` against `locales/<lang>.yaml` → returns `{title, purpose}`.
+#     2. Generate a top-level "## <title>" in the problem.md skeleton.
+#     3. The `purpose` becomes the initial [GAP: <purpose>] marker for that section
+#        and seeds the lead's first questions to the user.
+# - Sections with `optional: true` are NOT created in the skeleton. They materialize
+#   only if the user provides relevant content during capture.
+
+version: "0.5"
+
+sections:
+  - name: contexto
+    locale_ref: SCHEMA.problem.contexto
+
+  - name: objetivo
+    locale_ref: SCHEMA.problem.objetivo
+
+  - name: restricciones
+    locale_ref: SCHEMA.problem.restricciones
+
+  - name: decisiones_previas
+    locale_ref: SCHEMA.problem.decisiones_previas
+
+  - name: decision
+    locale_ref: SCHEMA.problem.decision
+
+  - name: stakeholders
+    locale_ref: SCHEMA.problem.stakeholders
+    optional: true

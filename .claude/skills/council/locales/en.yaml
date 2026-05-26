@@ -1,0 +1,349 @@
+# Council locale pack — English (en)
+#
+# Contract: see locales/_spec.yaml
+# Every key listed in `_spec.yaml > required_keys` must be present below.
+
+schema_version: "0.1"
+lang: "en"
+
+# ─────────────────────────────────────────────────────────────────────
+# H:* — Headings / inline labels
+# ─────────────────────────────────────────────────────────────────────
+H:
+  panel_title:                    "Panel"
+  purpose:                        "Purpose"
+  dominates:                      "Dominates"
+  out_of_scope:                   "Out of scope"
+  specialists:                    "Specialists"
+  friction_archetypes:            "Friction archetypes"
+  panel_notes:                    "Panel notes"
+  owner_per_variable:             "Owner per deliverable variable"
+  omitted_dimensions:             "Omitted panel dimensions (and why)"
+  user_composition_decisions:     "User's composition decisions"
+
+  identity:                       "Identity"
+  heuristics:                     "Heuristics"
+  red_flags:                      "Red flags"
+  anti_patterns:                  "Anti-patterns"
+  limitations:                    "Limitations"
+  voice:                          "Voice"
+
+  lead_notes_title:               "Lead notes"
+  user_directives_during_debate:  "User directives during the debate"
+  lead_interventions:             "Lead interventions (mediation)"
+  open_conflicts:                 "Open conflicts"
+  context_outside_files:          "Context outside files"
+
+  debate_mediated_title:          "Mediated debate"
+  user_directives_transmitted:    "User directives (transmitted to the panel)"
+  resolved_conflicts:             "Resolved conflicts"
+  unresolved_conflicts:           "Unresolved conflicts"
+
+  debate_summary_title:           "Debate summary"
+  context:                        "Context"
+  unanimous_agreement:            "Unanimous agreement"
+  debated_conflicts:              "Debated conflicts and how they were resolved"
+  open_disagreements:             "Open disagreements (if any)"
+
+  follow_up_title:                "Follow-up"
+  trigger:                        "Trigger"
+  new_information:                "New information provided"
+  user_leaning:                   "User's leaning (if any)"
+
+  subsequent_refinements:         "Subsequent refinements"
+
+  refines_label:                  "Refines"
+  anchor_label:                   "anchor"
+  anchor_default_general:         "general"
+  see_label:                      "See"
+
+  questions_for_user:             "Questions for the user"
+
+# ─────────────────────────────────────────────────────────────────────
+# I:* — Instructional placeholders (LLM prompts inside <...> in .tpl)
+# ─────────────────────────────────────────────────────────────────────
+I:
+  panel_purpose:                  "1 categorical sentence stating the panel's purpose"
+  panel_dominates:                "2-4 categorical question types the panel handles well"
+  panel_out_of_scope:             "2-4 question types the panel rejects — operable, not descriptive"
+  specialist_entry_angle:         "angle in 1 line"
+  friction_entry_angle:           "angle in 1 line"
+  owner_per_variable_body: |
+    for each key variable/section of `deliverable.md`, which expert covers it. E.g.: "power and efficiency → module-technologist; price → cost-economist". If a variable has no clear owner, surface it here — may signal a missing specialist.
+  omitted_dimensions_body: |
+    of the 4 friction dimensions (`operacional`, `adherencia`, `politico`, `economico` — kept as Spanish identifiers across locales for backwards compatibility), the ones NOT in the panel and the categorical reason — not from problem.md. E.g.: "Omits `politico` because it's an individual decision without multiple stakeholders".
+  user_composition_decisions_body: |
+    if the user asked to add/remove/swap experts during the checkpoint, record it here. If none: "None — panel accepted on first proposal".
+
+  specialist_identity:            "200-400 word categorical bio of the field, not of the user's project"
+  specialist_heuristics:          "3-5 categorical domain decision rules — the specialist applies them"
+  specialist_red_flags:           "2-3 categorical alarm signals"
+  specialist_anti_patterns:       "2-3 domain anti-patterns"
+  specialist_limitations:         "2-3 neighbouring domains you do NOT cover"
+  specialist_voice:               "3-5 plausible sentences you'd say — affirmations, recommendations, criteria"
+
+  friction_identity:              "200-400 word categorical bio of the field, not of the user's project. Your value is friction — the uncomfortable voice that doubts when specialists converge"
+  friction_heuristics: |
+    3-5 lenses of doubt, NOT action rules. E.g.: "the catalogue figure is a ceiling", "a single decision variable hides costs in the others"
+  friction_red_flags:             "2-3 categorical alarm signals that trigger your objection"
+  friction_anti_patterns:         "2-3 domain anti-patterns your role detects"
+  friction_limitations_extra:     "2-3 additional things you do NOT know / do NOT cover"
+  friction_voice: |
+    3-5 uncomfortable questions (NOT statements). If you find yourself writing "buy X", "choose Y", "use Z" → you're drifting to specialist; start over
+
+  lead_notes_user_directives: |
+    literal extract from user_directives.md + any ad-hoc user intervention in main chat NOT already in other files
+  lead_notes_interventions: |
+    factual bullets: which expert you asked what during the shuttle, what was conceded and where — derivable from debate_mediated.md but kept here in compact form
+  lead_notes_open_conflicts: |
+    the ones `debate_mediated.md` marks as "unresolved" — the moderator must reflect them as two symmetric positions in outcome.md, without forcing resolution
+  lead_notes_context_outside: |
+    if the user passed info via chat that wasn't persisted in other files, put it here
+
+  debate_user_directives:         "literal content of user_directives.md, or \"None\""
+  debate_resolved_conflicts: |
+    for each conflict: "<conflict-id>: <description>. Initial positions: A=..., B=... Resolution: <who conceded and why, or compromise reached>"
+  debate_unresolved_conflicts: |
+    for each conflict: "<conflict-id>: <description>. Position A: ... Position B: ... Reason for disagreement: ..."
+
+  summary_context:                "2-3 lines of the problem + state of the hypothesis (user-provided / auto-generated / open case)"
+  summary_unanimous:              "list of things all N experts aligned on"
+  summary_debated_conflicts:      "for each conflict: initial positions, arguments, resolution (or open disagreement)"
+  summary_open_disagreements:     "conflicts requiring a user decision"
+
+  follow_up_trigger:              "the question / what's unclear / what's being challenged — in the user's words"
+  follow_up_new_information: |
+    new data, if any. Mark each: "[new]" if it only adds, or "[updates problem.md — was: <old value>]" if it contradicts/changes problem.md. Or "None".
+  follow_up_user_leaning:         "what the user already thinks as an answer, if provided; or \"None\"."
+
+  parent_appendix_entry:          "the follow-up in one line"
+
+# ─────────────────────────────────────────────────────────────────────
+# R:* — Hard rules (verbatim, never paraphrased)
+# ─────────────────────────────────────────────────────────────────────
+R:
+  friction_function: |
+    **Function: question, do not propose. DO NOT formulate constructive recommendations of your own — your value is to puncture the specialists' decisions, not to add one more.**
+  friction_voice_warning: |
+    If you find yourself writing "buy X", "choose Y", "use Z" → you're drifting to specialist; start over
+
+# ─────────────────────────────────────────────────────────────────────
+# S:* — Spawn primitive body fragments
+# ─────────────────────────────────────────────────────────────────────
+S:
+  expert_spawn_header: |
+    You are `<name>`, specialist in `<role_category>`. You're participating as an independent expert in a council. DO NOT communicate with other experts — the lead is the only channel.
+
+    **Always read (base context)**:
+    - `branches/<branch>/problems/<id>/problem.md` (the user's problem — single source of context)
+    - `branches/<branch>/problems/<id>/council/<run-id>/hypothesis.md` or `follow_up.md` (run anchor — tentative hypothesis in `deliberate`, follow-up in `refine`)
+    - `branches/<branch>/problems/<id>/council/<run-id>/deliverable.md` (shape of the deliverable the user expects; may not exist in Tier 1 refinements)
+    - `branches/<branch>/problems/<id>/council/<run-id>/experts/<name>/persona.md` (your persona)
+
+    **Positioning against the run anchor**:
+    - If it's `hypothesis.md` marked `[user-provided]` or `[auto-generated]`: your job is to REFINE / VALIDATE / CHALLENGE it with concrete reasoning. DO NOT invent alternatives from scratch unless you see a fundamental flaw.
+    - If it's `hypothesis.md` marked `[N/A: open case]`: diverge without an anchor.
+    - If it's `follow_up.md` (refine): the follow-up is your focus — refine, extend or challenge the parent outcome. If it carries a 'User leaning', validate / refine / challenge it. **Precedence P4**: if anything in `follow_up.md` contradicts `problem.md`, `follow_up.md` wins.
+
+    **Deliverable shape**: align your work with `deliverable.md` (type, expected sections, depth).
+
+    **User escalations (round barrier)**: if you need user input, DO NOT interrupt; add a `## Questions for the user` section at the END of your file with concise bullets. The lead will collect them at round close.
+
+    **External evidence**: if needed, use the web search/fetch tools available in your environment (WebSearch/WebFetch in Claude Code; web/web_fetch + github/* in Copilot CLI).
+
+    **Evidence discipline (mandatory for concrete figures)**: every concrete figure you cite (prices, dimensions, efficiencies, coefficients, deadlines, dates, %, €, kW, kg, etc.) must carry a verifiable inline source: `[source: <URL>]` or `[source: manufacturer datasheet <brand>]` or `[source: distributor <name> — <date>]`. If a figure is estimated or from memory, prefix it with `est.` and mark it `[verify before deciding]`. DO NOT mix verified and estimated figures in the same table without distinguishing them — an honest expert separates what they know from what they recall.
+
+    Be concise and evidence-based.
+
+  language_discipline: |
+    ---
+    **Output language: English.** Keep it throughout the entire response — DO NOT switch languages mid-generation, DO NOT mix languages in the same sentence. Established technical loanwords in your field (rollback, trade-off, stack, deploy, pipeline, etc.) may stay as-is if they are the de-facto term — don't force unnatural translation.
+
+    **Council canonical vocabulary (use verbatim — do not paraphrase):**
+    - "## Position" (not "Conclusion", "Final result")
+    - "## Reasons" (not "Arguments", "Justification")
+    - "## Assumptions" (not "Premises", "Givens")
+    - "## Questions for the user" (not "Doubts", "Queries")
+    - "Red flags" kept as-is (established term)
+
+    **Example of expected structure (in English):**
+
+  read_also_label:                  "Read also"
+
+  task_round_a: |
+    **Task (Round A)**: write your initial proposal at `<output-path>`.
+
+  task_round_b: |
+    **Task (Round B)**: write your critiques of each of the others' proposals (agreement / concrete problems / what you'd change) at `<output-path>`. Be genuinely critical — don't seek easy consensus.
+
+  task_round_c_shuttle: |
+    **Task (Round C — shuttle)**: the lead brings you a debate conflict.
+
+    Conflict `<conflict-id>`: <conflict-description>. `<other-expert>` holds `<position-B>` for these reasons: <reasons-B>. Your position as I understood it: `<position-A>`.
+
+    Do you hold? Modify? Concede? Explain with concrete reasoning — what argument from the other expert does or doesn't convince you, and why. Write your response at `<output-path>`.
+
+  task_round_d: |
+    **Task (Round D)**: write your consolidated final position at `<output-path>`. Incorporate compromises reached in the mediated debate. If there is open disagreement against you, hold your position — DO NOT force consensus.
+
+  refine_parent_context_label:      "Read also (inherited parent-run context)"
+
+  task_round_a_refine_starting_point: |
+    **STARTING POINT**: the verified data of the parent run (outcome, final_positions) is your base — DO NOT re-investigate what's already verified there. Use web search/fetch only for what the follow-up ADDS as new.
+
+  moderator_prompt_deliberate: |
+    You are the moderator agent of a council. Your job is to produce the impartial final synthesis.
+
+    Read EVERYTHING:
+    - `branches/<branch>/problems/<id>/problem.md`
+    - `council/<run-id>/hypothesis.md`
+    - `council/<run-id>/deliverable.md`
+    - `council/<run-id>/panel.md` + `council/<run-id>/experts/*/persona.md`
+    - `council/<run-id>/proposals/*.md`
+    - `council/<run-id>/critiques/*.md`
+    - `council/<run-id>/debate_mediated.md`
+    - `council/<run-id>/final_positions/*.md`
+    - `council/<run-id>/lead_notes.md` (context the lead is transmitting to you; respect those guidelines)
+    - `council/<run-id>/escalations/*.md` (user Q&A during the debate)
+
+    Produce two files in `council/<run-id>/`:
+
+    **1. `debate_summary.md`** — fixed format. Follow the template `actions/deliberate/templates/debate_summary.md.tpl` (resolved against the active locale — header + sections: Context / Unanimous agreement / Debated conflicts and how they were resolved / Open disagreements).
+
+    **2. `outcome.md`** — final recommendation. **DO NOT use a universal template.** The exact shape (sections, type, depth) is defined in `deliverable.md`. Build `outcome.md` respecting those sections.
+
+    **SCOPE — HARD RULE**: `outcome.md` MUST respect EXACTLY the sections declared in `deliverable.md`. If any expert in `proposals/`, `critiques/` or `final_positions/` touched content outside that scope (e.g. mentioned adjacent components, costs of unagreed subsystems, payback, implementation plan, surrounding infrastructure), THAT CONTENT IS DISCARDED from the deliverable — even if useful. Scope was agreed with the user in STEP 1.6; expanding it unilaterally is a violation. If `panel.md`'s "Out of scope" section declares something excluded, that something DOES NOT appear in `outcome.md`.
+
+    **Additional mandatory section** (always, unless the user explicitly excluded it in `deliverable.md`): if `hypothesis.md` is marked `[user-provided]` or `[auto-generated]`, add a **"Verdict on the user's hypothesis"** section with what parts are confirmed, what parts are challenged, and reasons derived from the debate. If marked `[N/A: open case]`, omit this section.
+
+    Mandatory outcome header:
+    ```markdown
+    # Council outcome — <branch>/<problem-id> · <run-id>
+
+    <... sections per deliverable.md ...>
+    ```
+
+    IMPARTIALITY:
+    - Reflect disagreements as symmetric positions; do not force consensus.
+    - Cite experts by category (not by equipment brand or privileged hypothesis).
+    - Do not add information not in the files.
+
+    **POST-SYNTHESIS AUDIT (mandatory before closing)**. After producing `outcome.md`, run two internal verifications and CORRECT if they fail:
+
+    1. **Section mapping**: list the sections of your `outcome.md` and, for each one, identify which section of `deliverable.md` it corresponds to. If any section of your outcome does NOT map to `deliverable.md` (plus the verdict section, if applicable), remove it. If any required section of `deliverable.md` is not covered, add it.
+    2. **Evidence discipline**: review every concrete figure in `outcome.md` (prices, dimensions, %, €, deadlines…). Each must (a) carry a verifiable inline source as it came from `proposals/`/`final_positions/`, or (b) be marked `est.` with `[verify before deciding]`. If a figure arrived without a source from some expert, DO NOT whitewash it — mark it as estimated. The user must be able to distinguish what's verified from what's recalled.
+
+    Do not report the audit in the outcome (it's internal); but always execute it.
+
+  moderator_prompt_refine_tier1: |
+    You are the moderator agent of a council. The user is asking for a CLARIFICATION on an already-closed deliberation. Read:
+    - `branches/<branch>/problems/<id>/problem.md`
+    - `branches/<branch>/problems/<id>/council/<parent-run-id>/outcome.md`
+    - `branches/<branch>/problems/<id>/council/<parent-run-id>/debate_summary.md` (if present — a refinement-only parent without debate won't have it)
+    - `branches/<branch>/problems/<id>/council/<parent-run-id>/final_positions/*.md` (if present — a Tier 1 refinement parent won't have them)
+    - `branches/<branch>/problems/<id>/council/<child-run-id>/follow_up.md` (what the user wants clarified)
+
+    Produce `branches/<branch>/problems/<id>/council/<child-run-id>/outcome.md`: a short, bounded clarification that answers the follow-up, **self-contained** (the user shouldn't need to re-read the parent outcome to understand it), opening with a framing line: *'This clarifies <X> of `<parent-run-id>`.'*
+
+    IMPORTANT: your job is to RE-EXPOSE what's already in the parent run's files, better explained — NOT to produce new analysis. If faithfully responding would require new reasoning not in those files, DO NOT invent it: instead write `branches/<branch>/problems/<id>/council/<child-run-id>/NEEDS-TIER-2.md` explaining what new analysis would be needed, and DO NOT write `outcome.md`.
+
+  moderator_prompt_refine_tier2: |
+    You are the moderator agent of a council. You produce the impartial final synthesis of a **refinement**.
+
+    Read EVERYTHING: `problem.md`; from the child run `council/<child-run-id>/` → `follow_up.md`, `deliverable.md`, `panel.md` + `experts/*/persona.md`, `proposals/*.md`, `critiques/*.md`, `debate_mediated.md` (if present), `final_positions/*.md` (if present), `lead_notes.md`, `escalations/*.md`; and from the parent run `council/<parent-run-id>/outcome.md` (to know what's being refined and NOT duplicate it).
+
+    Produce in `council/<child-run-id>/`:
+    1. `outcome.md` — the refinement's recommendation. **SCOPED and SELF-CONTAINED**: responds to the follow-up according to the child's `deliverable.md` sections (DO NOT use a universal template), opens with a framing/lineage line (*'This refines <X> of `<parent-run-id>`, motivated by <the follow-up>.'*), and DOES NOT dump the parent `outcome.md` — the reader must have a complete answer to the follow-up without re-reading the parent, but without duplicating what didn't change. Header: `# Refinement outcome — <branch>/<problem-id> · <child-run-id>`.
+       - If `follow_up.md` has a 'User leaning', add a **'Verdict on the user's leaning'** section (what it confirms, what it challenges, debate reasoning). If no leaning, omit it.
+    2. `debate_summary.md` — **only if Round C′ ran** (there was debate). Fixed format: Context / Agreement / Debated conflicts and resolution / Open disagreements. If no C′, DO NOT create it.
+
+    IMPARTIALITY: reflect disagreements as symmetric positions, do not force consensus; cite experts by category; do not add information not in the files.
+
+# ─────────────────────────────────────────────────────────────────────
+# F:* — Few-shot examples per output role
+# ─────────────────────────────────────────────────────────────────────
+F:
+  example_proposal: |
+    ## Position
+    I recommend X — though it only covers ~70% of the case described in `problem.md`.
+
+    ## Reasons
+    - What `panel.md` (panel anchor) says about scope fits X.
+    - The heuristic "<your-persona's-heuristic>" rules out Y because <categorical reason>.
+
+    ## Assumptions
+    - est. [verify before deciding]: that condition Z described in problem.md still holds.
+
+    ## Questions for the user
+    - Do you accept the trade-off between A and B implicit in X?
+
+  example_critique: |
+    ## Critique of `proposals/expert_<other-name>.md`
+    - **Strength**: correctly identifies <X> as a hard constraint.
+    - **Gap**: omits dimension <Y>, which is the deciding factor in my heuristic "<H>".
+    - **Questionable assumption**: assumes Z without marking it `est.` — should go with `[verify before deciding]`.
+
+    ## Adjusted position (if mine changes after reading the proposals)
+    My original position holds, but with a nuance: <concrete nuance>.
+
+    ## Questions for the user
+    - <question if any; otherwise omit this section>
+
+  example_debate: |
+    ## Response to conflict `<conflict-id>` — turn of expert `<name>`
+    - **Lead's relay**: `<other-expert>`'s position is <1-line summary>.
+    - **My position remains X** because <new or reinforced categorical reason>, except on point <P> where I concede <concession>.
+    - **What I'd need to move my position**: <concrete criterion, not generic>.
+
+  example_final_position: |
+    ## Final position
+    After mediation, I hold X with the following qualifier: <post-debate qualifier>.
+
+    ## Path summary
+    - Initial position (Round A): <1 line>.
+    - Critique received (Round B): <1 line>.
+    - Mediation (Round C): <what I conceded / what I held>.
+
+    ## What I bring to the moderator
+    - Point of agreement with the panel: <1 line>.
+    - Point of firm dissent (if any): <1 line — the moderator must reflect it>.
+
+    ## Questions for the user
+    - <question if any; otherwise omit this section>
+
+# ─────────────────────────────────────────────────────────────────────
+# SCHEMA — Section titles + purposes for problem.md / deliverable.md
+# ─────────────────────────────────────────────────────────────────────
+SCHEMA:
+  problem:
+    contexto:
+      title: "Context"
+      purpose: "what it is, where, mode of use, current starting point"
+    objetivo:
+      title: "Goal and success criterion"
+      purpose: "what you want to achieve and how you'll know it's resolved"
+    restricciones:
+      title: "Constraints"
+      purpose: "budget, time, space, regulatory, policy — what limits the possible solutions"
+    decisiones_previas:
+      title: "Decisions taken and prior exploration"
+      purpose: "decisions already closed (brands, architecture, scope), hypotheses to evaluate, and things explicitly discarded with the reason"
+    decision:
+      title: "Concrete decision you need"
+      purpose: "what you want from the council: sizing, validation of your proposal, choice among options, etc."
+    stakeholders:
+      title: "Stakeholders"
+      purpose: "who decides, who implements, who operates day-to-day"
+  deliverable:
+    tipo:
+      title: "Output type"
+      purpose: "what shape the response should take — item list / A vs B comparative / phased plan / binary decision / numeric sizing / explanatory narrative / structural diagram / combination"
+    estructura:
+      title: "Expected sections in outcome.md"
+      purpose: "what blocks of information the final response should have, in what order — list the `## <title>` you expect to see"
+    profundidad:
+      title: "Level of detail"
+      purpose: "high level (concepts and categories) / medium (categories with ranges or examples) / specific (brand, model, quantity, exact number)"
+    audiencia:
+      title: "Audience"
+      purpose: "who reads the output — me / external installer / non-technical client / internal technical team / mixed — determines tone and depth"
